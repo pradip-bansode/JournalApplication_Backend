@@ -5,6 +5,8 @@ import com.example.journalApp.sevice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.PublicKey;
@@ -23,10 +25,6 @@ public class UserController {
     }
 
 
-    @GetMapping
-    public List<User> readeuser(){
-       return userService.showUser();
-    }
 
 //    @DeleteMapping
 //    public boolean delteUserById(@PathVariable Long id){
@@ -34,18 +32,16 @@ public class UserController {
 //        return true;
 //    }
 
-    @PutMapping("/{userName}")
-    public ResponseEntity<User> updataUser(@RequestBody User user , @PathVariable String userName){
+    @PutMapping
+    public ResponseEntity<User> updataUser(@RequestBody User user ){
 
+        Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+        String userName= authentication.getName();
         User userIndb = userService.findByUserName(userName);
-
-        if(userIndb != null){
             userIndb.setUserName(user.getUserName());
             userIndb.setPassword(user.getPassword());
-
             userService.saveUser(userIndb);
-        }
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(userIndb , HttpStatus.OK);
     }
 
 }

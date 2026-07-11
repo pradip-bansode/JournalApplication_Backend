@@ -1,10 +1,12 @@
 package com.example.journalApp.sevice;
 
 import com.example.journalApp.entity.JournalEntry;
+import com.example.journalApp.entity.User;
 import com.example.journalApp.repository.JournalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -15,8 +17,18 @@ public class JournalService {
     @Autowired
     private JournalRepository repo;
 
-    public void saveData(JournalEntry journalEntry) {
-        repo.save(journalEntry);
+    @Autowired
+    private UserService userService;
+
+    public void saveData(JournalEntry journalEntry, String userName)
+    {
+        User user = userService.findByUserName(userName);
+        journalEntry.setDate(LocalDateTime.now());
+        journalEntry.setUser(user);
+       JournalEntry saved= repo.save(journalEntry);
+
+       user.getJournalEntries().add(saved);
+       userService.saveUser(user);
     }
 
     public List<JournalEntry> getAll() {
@@ -33,8 +45,10 @@ public class JournalService {
     }
 
     public JournalEntry update(Long id, JournalEntry myEntry) {
-
-        return repo.save(myEntry);
+    JournalEntry old = repo.findById(id).orElse(null);
+    old.setTitle(myEntry.getTitle());
+    old.setContent(myEntry.getContent());
+        return repo.save(old);
     }
 
 

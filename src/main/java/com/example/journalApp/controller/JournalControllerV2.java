@@ -26,36 +26,44 @@ public class JournalControllerV2 {
     @GetMapping("/{userName}")
     public ResponseEntity<?> getAllJournalEntriesOfUser(@PathVariable String userName){
         User user = userService.findByUserName(userName);
-        List<JournalEntry> all = journalService.getAll();
+        List<JournalEntry> all = user.getJournalEntries();
         if(all != null && !all.isEmpty()){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(all , HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @GetMapping("/{id}")
-    public JournalEntry showById(@PathVariable Long id){
+    @GetMapping("/{userName}/{id}")
+    public JournalEntry showById(@PathVariable Long id, @PathVariable String userName){
 
         return journalService.getById(id);
     }
 
-    @PostMapping
-    public boolean adddata(@RequestBody JournalEntry myEntry){
-        myEntry.setDate(LocalDateTime.now());
-       journalService.saveData(myEntry);
-        return true;
+    @PostMapping("/{userName}")
+    public ResponseEntity<JournalEntry> adddata(@RequestBody JournalEntry myEntry , @PathVariable String userName){
+        try {
+            journalService.saveData(myEntry , userName);
+            return new ResponseEntity<>(myEntry, HttpStatus.CREATED);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
     }
 
-    @PutMapping("/{id}")
-    public JournalEntry updataData(@PathVariable Long id,@RequestBody JournalEntry myEntry){
+    @PutMapping("/{userName}/{id}")
+    public ResponseEntity<JournalEntry>  updataData(@PathVariable Long id,@RequestBody JournalEntry myEntry, @PathVariable String userName){
 
-        myEntry.setDate(LocalDateTime.now());
-        return journalService.update(id,myEntry);
+JournalEntry updated = journalService.update(id, myEntry);
+   if(updated != null){
+       return new ResponseEntity<>(updated, HttpStatus.OK);
+   }
+   return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+
     }
 
-    @DeleteMapping("/{id}")
-    public boolean deletedata(@PathVariable Long id){
+    @DeleteMapping("/{userName}/{id}")
+    public boolean deletedata(@PathVariable String userName,@PathVariable Long id){
         journalService.deleteData(id);
         return true;
     }
