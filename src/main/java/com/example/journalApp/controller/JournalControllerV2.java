@@ -7,6 +7,8 @@ import com.example.journalApp.sevice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -23,8 +25,10 @@ public class JournalControllerV2 {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/{userName}")
-    public ResponseEntity<?> getAllJournalEntriesOfUser(@PathVariable String userName){
+    @GetMapping
+    public ResponseEntity<?> getAllJournalEntriesOfUser(){
+        Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+        String userName= authentication.getName();
         User user = userService.findByUserName(userName);
         List<JournalEntry> all = user.getJournalEntries();
         if(all != null && !all.isEmpty()){
@@ -33,14 +37,16 @@ public class JournalControllerV2 {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @GetMapping("/{userName}/{id}")
-    public JournalEntry showById(@PathVariable Long id, @PathVariable String userName){
+//    @GetMapping("/{userName}/{id}")
+//    public ResponseEntity<?> showById(@PathVariable Long id, @PathVariable String userName){
+//
+//        return  journalService.getById(id);
+//    }
 
-        return journalService.getById(id);
-    }
-
-    @PostMapping("/{userName}")
-    public ResponseEntity<JournalEntry> adddata(@RequestBody JournalEntry myEntry , @PathVariable String userName){
+    @PostMapping
+    public ResponseEntity<JournalEntry> adddata(@RequestBody JournalEntry myEntry ){
+        Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+        String userName= authentication.getName();
         try {
             journalService.saveData(myEntry , userName);
             return new ResponseEntity<>(myEntry, HttpStatus.CREATED);
@@ -50,10 +56,11 @@ public class JournalControllerV2 {
 
     }
 
-    @PutMapping("/{userName}/{id}")
-    public ResponseEntity<JournalEntry>  updataData(@PathVariable Long id,@RequestBody JournalEntry myEntry, @PathVariable String userName){
-
-JournalEntry updated = journalService.update(id, myEntry);
+    @PutMapping("/{id}")
+    public ResponseEntity<JournalEntry>  updataData(@PathVariable Long id,@RequestBody JournalEntry myEntry){
+        Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+        String userName= authentication.getName();
+JournalEntry updated = journalService.update(id, myEntry );
    if(updated != null){
        return new ResponseEntity<>(updated, HttpStatus.OK);
    }
