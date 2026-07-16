@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/journal")
@@ -37,11 +39,20 @@ public class JournalControllerV2 {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-//    @GetMapping("/{userName}/{id}")
-//    public ResponseEntity<?> showById(@PathVariable Long id, @PathVariable String userName){
-//
-//        return  journalService.getById(id);
-//    }
+    @GetMapping("/{id}")
+    public ResponseEntity<?> showById(@PathVariable Long id){
+        Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+        String userName= authentication.getName();
+       User user = userService.findByUserName(userName);
+      List<JournalEntry> collect =  user.getJournalEntries().stream().filter(x -> x.getId().equals(id)).collect(Collectors.toList());
+      if(!collect.isEmpty()){
+          Optional<JournalEntry> journalEntry = journalService.getById(id);
+          if(journalEntry.isPresent()){
+              return new ResponseEntity<>(journalEntry.get() , HttpStatus.OK);
+          }
+      }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
 
     @PostMapping
     public ResponseEntity<JournalEntry> adddata(@RequestBody JournalEntry myEntry ){

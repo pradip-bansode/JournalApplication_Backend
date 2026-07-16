@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,7 +34,7 @@ public class JournalService {
         return repo.findAll();
     }
 
-    public JournalEntry getById(Long id) {
+    public Optional<JournalEntry> getById(Long id) {
         return repo.findById(id).orElse(null);
     }
 
