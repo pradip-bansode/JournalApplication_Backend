@@ -40,4 +40,10 @@ public class UserService {
     public User findByUserName(String userName){
         return repo.findByUserName(userName);
     }
+
+    public User saveAdmin(User user){
+        user.setPassword(passwordencoder.encode(user.getPassword()));
+        user.setRole(Arrays.asList("user","admin"));
+        return repo.save(user);
+    }
 }

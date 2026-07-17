@@ -17,4 +17,9 @@ public class PublicController {
         return userService.saveNewUser(user);
     }
 
+    @PostMapping("/admin")
+    public User createAdmin(@RequestBody User user){
+        return userService.saveAdmin(user);
+    }
+
 }
