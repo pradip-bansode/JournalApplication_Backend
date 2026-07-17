@@ -71,18 +71,28 @@ public class JournalControllerV2 {
     public ResponseEntity<JournalEntry>  updataData(@PathVariable Long id,@RequestBody JournalEntry myEntry){
         Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
         String userName= authentication.getName();
-JournalEntry updated = journalService.update(id, myEntry );
-   if(updated != null){
-       return new ResponseEntity<>(updated, HttpStatus.OK);
+        User user = userService.findByUserName(userName);
+        List<JournalEntry> collect =  user.getJournalEntries().stream().filter(x -> x.getId().equals(id)).collect(Collectors.toList());
+        if(!collect.isEmpty()) {
+            Optional<JournalEntry> journalEntry = journalService.getById(id);
+            if (journalEntry.isPresent()) {
+            JournalEntry old = journalEntry.get();
+                old.setTitle(myEntry.getTitle());
+                old.setContent(myEntry.getContent());
+                journalService.update(old);
+                return new ResponseEntity<>(old, HttpStatus.OK);
+
+            }
    }
    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-
-
     }
 
-    @DeleteMapping("/{userName}/{id}")
-    public boolean deletedata(@PathVariable String userName,@PathVariable Long id){
-        journalService.deleteData(id);
+    @DeleteMapping("/{id}")
+    public boolean deletedata(@PathVariable Long id){
+        Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+        String userName= authentication.getName();
+
+        journalService.deleteData(id, userName);
         return true;
     }
 

@@ -35,20 +35,24 @@ public class JournalService {
     }
 
     public Optional<JournalEntry> getById(Long id) {
-        return repo.findById(id).orElse(null);
+        return repo.findById(id);
     }
 
 
-    public void deleteData(Long id) {
-        repo.deleteById(id);
+    public void deleteData(Long id , String userName)
+    {
+        User user = userService.findByUserName(userName);
+       boolean result =  user.getJournalEntries().removeIf(x -> x.getId().equals(id));
+       if(result){
+           userService.saveUser(user);
+           repo.deleteById(id);
+       }
+
     }
 
-    public JournalEntry update(Long id, JournalEntry myEntry) {
-    JournalEntry old = repo.findById(id).orElse(null);
-    old.setTitle(myEntry.getTitle());
-    old.setContent(myEntry.getContent());
-        return repo.save(old);
-    }
+    public JournalEntry update(JournalEntry myEntry) {
 
+        return repo.save(myEntry);
+    }
 
 }

@@ -18,9 +18,13 @@ public class UserService {
 
     private static final PasswordEncoder passwordencoder = new BCryptPasswordEncoder();
 
-    public User saveUser(User user){
+    public User saveNewUser(User user){
       user.setPassword(passwordencoder.encode(user.getPassword()));
       user.setRole(Arrays.asList("user"));
+        return repo.save(user);
+    }
+
+    public User saveUser(User user){
         return repo.save(user);
     }
 
@@ -28,10 +32,10 @@ public class UserService {
         return repo.findAll();
     }
 
-    public boolean deletUser(Long id){
-        repo.deleteById(id);
-        return true;
-    }
+//    public boolean deletUser(User user){
+//        repo.delete(user);
+//        return true;
+//    }
 
     public User findByUserName(String userName){
         return repo.findByUserName(userName);

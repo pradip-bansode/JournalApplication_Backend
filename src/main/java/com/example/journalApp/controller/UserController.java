@@ -19,16 +19,17 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping
-   public User createUser(@RequestBody User user){
-        return userService.saveUser(user);
-    }
+//    @PostMapping
+//   public User createUser(@RequestBody User user){
+//        return userService.saveNewUser(user);
+//    }
 
 
 
 //    @DeleteMapping
-//    public boolean delteUserById(@PathVariable Long id){
-//        userService.deletUser(id);
+//    public boolean delteUserById(){
+//        Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+//        userService.deletUser(authentication.getName());
 //        return true;
 //    }
 
@@ -40,7 +41,7 @@ public class UserController {
         User userIndb = userService.findByUserName(userName);
             userIndb.setUserName(user.getUserName());
             userIndb.setPassword(user.getPassword());
-            userService.saveUser(userIndb);
+            userService.saveNewUser(userIndb);
         return new ResponseEntity<>(userIndb , HttpStatus.OK);
     }
 
